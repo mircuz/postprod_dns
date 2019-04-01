@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf xmlns:xi="http://www.w3.org/2003/XInclude" Version="3.0">
+  <Domain>
+    <Grid Name="Velocities" GridType="Uniform">
+      <Topology TopologyType="3DCORECTMesh" NumberOfElements="33 35 33" /> <Geometry GeometryType="ORIGIN_DXDYDZ">
+	<DataItem Name="origin" Dimensions="3" NumberType="Float" Precision="4" Format="XML"> 0.0 0.0 0.0
+	</DataItem>
+	<DataItem Name="spacing" Dimensions="3" NumberType="Float" Precision="4" Format="XML">
+	1.0 1.0 1.0 </DataItem>
+      </Geometry>
+	<Attribute Name="vectors" AttributeType="Vector" Center="Node">
+	  <DataItem ItemType="Function" Function="join($0, $1, $2)" Dimensions="33 35 33 3"> 
+	    <DataItem Dimensions="38115" NumberType="Float" Precision="4" Format="HDF">
+	      Processed_Field.h5:/3/u
+	    </DataItem>
+	    <DataItem Dimensions="38115" NumberType="Float" Precision="4" Format="HDF">
+	      Processed_Field.h5:/3/v
+	    </DataItem>
+	    <DataItem Dimensions="38115" NumberType="Float" Precision="4" Format="HDF">
+	      Processed_Field.h5:/3/w 
+	    </DataItem>
+	  </DataItem> 
+        </Attribute>
+    </Grid> 
+  </Domain>
+</Xdmf>

@@ -1,0 +1,23 @@
+#include <mpi.h>
+#include <math.h>
+#include <stdlib.h>
+#include "remap3d_wrap.h"
+#include "/home/mirco/Scrivania/hdf5/include/hdf5.h"
+#include "/home/mirco/Scrivania/hdf5/include/hdf5_hl.h"
+
+USE postprod_support
+USE initialization
+USE postprod_oper
+USE convol_trasp
+
+IF rank=0 THEN write_topology
+LOOP FOR time = starting_time TO t_max BY dt_save
+	!time = 0.005333333333333333
+	read_disk(nx,ny,nz)
+	vetaTOuvw
+	ytoz
+	convol_trasp(nx,ny,nz)
+	write_on_disk(nx,ny,nz)
+REPEAT
+
+<* 	MPI_Finalize();	*>

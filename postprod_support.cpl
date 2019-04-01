@@ -1,0 +1,179 @@
+USE fft
+USE rbmat
+
+!// Parallel - initialization---------------------------------------------------------------------------
+INTEGER rank, size
+WRITE
+<*/* Initialize MPI */
+MPI_Init(&argc,&argv);
+MPI_Comm remap_comm; // @suppress("Type cannot be resolved")
+MPI_Comm_dup( MPI_COMM_WORLD, &remap_comm ); // @suppress("Symbol is not resolved")
+int rank,size;
+MPI_Comm_size(MPI_COMM_WORLD,&size);
+MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+rank_ = rank;
+size_ = size;	*>
+
+INTEGER ny,nx,nz,rank_zero_flag=0,rank_zero
+REAL alfa0, beta0, a, ymin, ymax, t_max, dt_field, dt_save
+REAL u_conv, u0, un, w_conv, w0, wn, t0, tn
+REAL ni,pr,meanpx=-99,meanpz=-99,meanflowx=-99,meanflowz=-99,px=0,corrpx=0,pz=0,corrpz=0,flowx=0,flowz=0,deltat=0, cflmax=0, time=0 
+REAL starting_time
+CHAR cwd[1024], output_cwd[1024]
+VELOCITY=STRUCTURE(COMPLEX u,v,w)
+VETA=STRUCTURE(COMPLEX v,eta)
+INTEGER localdim_x, localdim_z, dim_z, dim_y, ilo,ihi,jlo,jhi,klo,khi,  x_ilo,x_ihi,x_jlo,x_jhi,x_klo,x_khi,
+																		y_ilo,y_ihi,y_jlo,y_jhi,y_klo,y_khi,
+																		z_ilo,z_ihi,z_jlo,z_jhi,z_klo,z_khi,
+																		fz_ilo,fz_ihi,fz_jlo,fz_jhi,fz_klo,fz_khi,
+																		fx_ilo,fx_ihi,fx_jlo,fx_jhi,fx_klo,fx_khi,
+																		read_ilo, read_ihi, read_jlo,
+																		read_jhi, read_klo, read_khi;
+
+SUBROUTINE read_conditions
+	FILE in_data=OPEN("dns.in")
+	READ BY NAME FROM in_data ny,nx,nz,alfa0,beta0,ymin,ymax,a,ni,pr; ni=1/ni; pr=1/pr
+	DO WHILE READ BY NAME FROM in_data meanpx OR meanflowx; px=meanpx
+	DO WHILE READ BY NAME FROM in_data meanpz OR meanflowz; pz=meanpz
+	READ BY NAME FROM in_data u_conv, w_conv
+	READ BY NAME FROM in_data u0, un, w0, wn, t0, tn
+	DO WHILE READ BY NAME FROM in_data deltat OR cflmax
+	READ BY NAME FROM in_data t_max, starting_time, dt_field, dt_save
+
+	CLOSE in_data
+	IF rank= 0 THEN
+		WRITE BY NAME nx, nz, ny, time
+    	WRITE BY NAME meanflowx, meanpx, meanflowz, meanpz
+   	 	WRITE BY NAME ymin, ymax, a, alfa0, beta0, 1/ni, 1/pr
+   	 WRITE BY NAME u_conv, u0, un, w_conv, w0, wn, t0, tn
+   	 WRITE BY NAME deltat, cflmax, t_max, dt_save, dt_field  
+	END IF
+END read_conditions
+read_conditions
+
+!//Select Mesh
+REAL y(-1..ny+1)
+DO y(i)=ymin+0.5*(ymax-ymin)*[tanh(a*(2*i/ny-1))/tanh(a)+0.5*(ymax-ymin)] FOR ALL i !Channel
+!DO y(i)=ymin+(ymax-ymin)*i/ny FOR ALL i !Mesh equispaziata
+!DO y(i)=ymin+(ymax-ymin)*[tanh(a*(i/ny-1))/tanh(a)+1] FOR ALL i !Boundary layer
+
+STRUCTURE[ARRAY(-2..2) OF REAL d0,d1,d2,d4] derivatives(1..ny-1)
+ARRAY(-2..2) OF REAL d040,d140,d240,d340,d14m1,d24m1, d04n,d14n,d24n,d14np1,d24np1
+
+
+!// FFT Dimensions---------------------------------------------------------------------------------------
+INTEGER nxd = (nx)*3 DIV 2 -1 ;	INTEGER nzd = 3*nz-1;
+DO INC nxd UNTIL FFTfit(nxd);	
+DO INC nzd UNTIL FFTfit(nzd);
+
+!// X-FFT------------------------------------------------------------------------------------------------
+SUBROUTINE FFT_x(POINTER TO ARRAY(*) OF REAL work; INTEGER elem_per_proc; INTEGER flag)
+ARRAY(0..nxd-1) OF COMPLEX in
+	INTEGER count = 0, n=0, i=0;
+	LOOP WHILE ( count < elem_per_proc/(2*nxd))
+		!// fill IN array
+		i=0
+		LOOP WHILE i < 2*nxd-1
+			in[n].REAL = work[i+count*2*nxd];		INC i
+			in[n].IMAG = work[i+count*2*nxd];		INC i
+			INC n
+		REPEAT LOOP
+		!// Execute FFT exploting symmetry
+		IF flag = 1 THEN RFT(in) ELSE IF flag = -1 THEN HFT(in) ELSE ERROR ".:Error: Check x-FFT flag:.		"
+		!// Push data inside original array
+		INTEGER r=0
+		i=0; n=0;
+		LOOP WHILE i < 2*nxd-1
+			work[i+count*2*nxd] = in[r].REAL;		INC i
+			work[i+count*2*nxd] = in[r].IMAG;		INC i
+			INC r
+		REPEAT LOOP
+		INC count
+	REPEAT LOOP
+END FFT_x
+
+!// Z-FFT------------------------------------------------------------------------------------------------
+SUBROUTINE FFT_z(POINTER TO ARRAY(*) OF REAL work; INTEGER elem_per_proc; INTEGER flag)
+ARRAY(0..nzd-1) OF COMPLEX in
+	INTEGER count = 0, n=0, i=0;
+	LOOP WHILE ( count < elem_per_proc/(2*nzd))
+		!// fill IN array
+		i=0
+		LOOP WHILE i < 2*nzd-1
+			in[n].REAL = work[i+count*2*nzd];		INC i
+			in[n].IMAG = work[i+count*2*nzd];		INC i
+			INC n
+		REPEAT LOOP
+		!// Execute FFT exploting symmetry
+		IF flag = 1 THEN IFTU(in) ELSE IF flag = -1 THEN FFTU(in) ELSE ERROR ".:Error: Wrong z-FFT flag setted:.		"
+		!// Push data inside original array
+		INTEGER r=0
+		i=0; n=0;
+		LOOP WHILE i < 2*nzd-1
+			work[i+count*2*nzd] = in[r].REAL;		INC i
+			work[i+count*2*nzd] = in[r].IMAG;		INC i
+			INC r
+		REPEAT LOOP
+		INC count
+	REPEAT LOOP
+END FFT_z 
+
+!// Setup derivatives-----------------------------------------------------------------------------------
+MODULE setup_derivatives
+REAL M(0..4,0..4),t(0..4)
+LOOP FOR iy=1 TO ny-1 WITH derivatives(iy)
+  	DO M(i,j)=(y(iy-2+j)-y(iy))**(4-i) FOR i=0 TO 4 AND j=0 TO 4; LUdecomp M
+  	t=0; t(0)=24
+  	d4(-2+(*))=M\t
+  	DO M(i,j)=(5-i)*(6-i)*(7-i)*(8-i)*(y(iy-2+j)-y(iy))**(4-i) FOR i=0 TO 4 AND j=0 TO 4; LUdecomp M
+ 	 DO t(i)=SUM {d4(j)*(y(iy+j)-y(iy))**(8-i)} FOR j=-2 TO 2 FOR i=0 TO 4
+	  d0(-2+(*))=M\t
+ 	 DO M(i,j)=(y(iy-2+j)-y(iy))**(4-i) FOR i=0 TO 4 AND j=0 TO 4; LUdecomp M
+  	t=0; DO t(i)=SUM d0(j)*(4-i)*(3-i)*(y(iy+j)-y(iy))**(2-i) FOR j=-2 TO 2 FOR i=0 TO 2
+  	d2(-2+(*))=M\t
+  	t=0; DO t(i)=SUM d0(j)*(4-i)*(y(iy+j)-y(iy))**(3-i) FOR j=-2 TO 2 FOR i=0 TO 3
+  	d1(-2+(*))=M\t
+REPEAT
+
+d040=0; d040(-1)=1
+DO M(i,j)=(y(-1+j)-y(0))**(4-i) FOR i=0 TO 4 AND j=0 TO 4; LUdecomp M
+t=0; t(3)=1
+d140(-2+(*))=M\t
+t=0; t(2)=2
+d240(-2+(*))=M\t
+t=0; t(3)=6
+d340(-2+(*))=M\t
+DO M(i,j)=(y(-1+j)-y(-1))**(4-i) FOR i=0 TO 4 AND j=0 TO 4; LUdecomp M
+t=0; t(3)=1
+d14m1(-2+(*))=M\t
+t=0; t(2)=2
+d24m1(-2+(*))=M\t
+
+d04n=0; d04n(1)=1
+DO M(i,j)=(y(ny-3+j)-y(ny))**(4-i) FOR i=0 TO 4 AND j=0 TO 4; LUdecomp M
+t=0; t(3)=1
+d14n(-2+(*))=M\t
+t=0; t(2)=2
+d24n(-2+(*))=M\t
+DO M(i,j)=(y(ny-3+j)-y(ny+1))**(4-i) FOR i=0 TO 4 AND j=0 TO 4; LUdecomp M
+t=0; t(3)=1
+d14np1(-2+(*))=M\t
+t=0; t(2)=2
+d24np1(-2+(*))=M\t
+
+END setup_derivatives
+
+!// Setup Boundary conditions variables---------------------------------------------------------------------		
+ARRAY(1..ny-1,-2..2) OF REAL D0mat=0
+D0mat(1..ny-1)=derivatives.d0; LUdecomp D0mat
+D0mat(1,-2..-1) = 0; 	D0mat(2,-2) = 0
+D0mat(ny-1,1..2) = 0; 	D0mat(ny-2,2) = 0
+
+INLINE REAL FUNCTION D0(REAL f(*)) = d0(-2)*f(-2)+d0(-1)*f(-1)+d0(0)*f(0)+d0(1)*f(1)+d0(2)*f(2)
+INLINE REAL FUNCTION D1(REAL f(*)) = d1(-2)*f(-2)+d1(-1)*f(-1)+d1(0)*f(0)+d1(1)*f(1)+d1(2)*f(2)
+INLINE REAL FUNCTION D2(REAL f(*)) = d2(-2)*f(-2)+d2(-1)*f(-1)+d2(0)*f(0)+d2(1)*f(1)+d2(2)*f(2)
+INLINE REAL FUNCTION D4(REAL f(*)) = d4(-2)*f(-2)+d4(-1)*f(-1)+d4(0)*f(0)+d4(1)*f(1)+d4(2)*f(2)
+INLINE COMPLEX FUNCTION D0(COMPLEX f(*)) = D0(f.REAL)+I*D0(f.IMAG)
+INLINE COMPLEX FUNCTION D1(COMPLEX f(*)) = D1(f.REAL)+I*D1(f.IMAG)
+INLINE COMPLEX FUNCTION D2(COMPLEX f(*)) = D2(f.REAL)+I*D2(f.IMAG)
+INLINE COMPLEX FUNCTION D4(COMPLEX f(*)) = D4(f.REAL)+I*D4(f.IMAG)
