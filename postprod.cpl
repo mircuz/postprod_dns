@@ -19,4 +19,5 @@ LOOP FOR time = starting_time TO t_max BY dt_save
 	convol_trasp(nx,ny,nz)
 	write_on_disk(nx,ny,nz)
 REPEAT
+IF rank=0 THEN xdmf_gen
 <* 	MPI_Finalize();	*>
