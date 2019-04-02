@@ -183,20 +183,20 @@ SUBROUTINE xdmf_gen
 	WRITE "Generating XDMF file..."
 <*	char field_time[25]="";	int nx= 2*nx_+1;	int nz= 2*nz_+1;	int ny=ny_+3;	
 	FILE *fp = fopen("Processed_Field.xmf", "w");
-	fprintf(fp, "<?xml version=^1.0^ ?>\n<--!REMEMBER TO SUBSTITUITE ^--> \n");
-	fprintf(fp, "  <!DOCTYPE Xdmf SYSTEM ^Xdmf.dtd^ []>\n");
-	fprintf(fp, "    <Xdmf xmlns:xi=^http://www.w3.org/2003/XInclude^ Version=^3.0^>\n");
+	fprintf(fp, "<?xml version=^1.0^ ?>\n");
+	fprintf(fp, "<!DOCTYPE Xdmf SYSTEM ^Xdmf.dtd^ []>\n");
+	fprintf(fp, "<Xdmf xmlns:xi=^http://www.w3.org/2003/XInclude^ Version=^3.0^>\n");
 	fprintf(fp, "      <Domain>\n        <Grid Name=^Velocities^ GridType=^Collection^ CollectionType=^Temporal^>\n");
 	for (double time = starting_time_; time<t_max_; time = time+dt_save_ ) {
 		gcvt (time, 10, field_time);
 		fprintf(fp, "		  <Grid Name=^Velocity^ GridType=^Uniform^>\n		    <Time Value=^%s^ />\n",field_time);
 		fprintf(fp, "			  <Topology TopologyType=^3DRECTMesh^ NumberOfElements=^%d %d %d^ />\n",nx,ny,nz);
 		fprintf(fp, "			  <Geometry GeometryType=^VXVYVZ^>\n");
-		fprintf(fp, "				<DataItem Name=^x_coord^ Dimensions=^%d^ NumberType=^Float^ Precision=^8^ Format=^HDF^>\n",nx);
+		fprintf(fp, "				<DataItem Name=^xcoord^ Dimensions=^%d^ NumberType=^Float^ Precision=^4^ Format=^HDF^>\n",nx);
 		fprintf(fp, "				  Processed_Field.h5:/nx\n				</DataItem>\n");
-		fprintf(fp, "				<DataItem Name=^y_coord^ Dimensions=^%d^ NumberType=^Float^ Precision=^8^ Format=^HDF^>\n",ny);
+		fprintf(fp, "				<DataItem Name=^ycoord^ Dimensions=^%d^ NumberType=^Float^ Precision=^4^ Format=^HDF^>\n",ny);
 		fprintf(fp, "				  Processed_Field.h5:/ny\n				</DataItem>\n");
-		fprintf(fp, "				<DataItem Name=^z_coord^ Dimensions=^%d^ NumberType=^Float^ Precision=^8^ Format=^HDF^>\n",nz);
+		fprintf(fp, "				<DataItem Name=^zcoord^ Dimensions=^%d^ NumberType=^Float^ Precision=^4^ Format=^HDF^>\n",nz);
 		fprintf(fp, "				  Processed_Field.h5:/nz\n				</DataItem>\n");
 		fprintf(fp, "			  </Geometry>\n			  <Attribute Name=^VELOCITY^ AttributeType=^Vector^ Center=^Node^>\n");
 		fprintf(fp, "				<DataItem ItemType=^Function^ Function=^join($0, $1, $2)^ Dimensions=^%d %d %d 3^>\n",nx,ny,nz); 
@@ -206,7 +206,7 @@ SUBROUTINE xdmf_gen
 		fprintf(fp, "					Processed_Field.h5:/%s/v\n					  </DataItem>\n",field_time);
 		fprintf(fp, "				  <DataItem Dimensions=^%d^ NumberType=^Float^ Precision=^8^ Format=^HDF^>\n",nx*ny*nz);
 		fprintf(fp, "					Processed_Field.h5:/%s/w\n					  </DataItem>\n",field_time);
-		fprintf(fp, "				  </DataItem>\n				</DataItem>\n			  </Attribute>\n			</Grid>\n");
+		fprintf(fp, "				  </DataItem>\n			  </Attribute>\n			</Grid>\n");
 	}
 	fprintf(fp, "		  </Grid>\n		</Domain>\n	  </Xdmf>\n");
 	fclose(fp);
