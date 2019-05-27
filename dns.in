@@ -1,4 +1,4 @@
-ny=32		nx=16	nz=16
+ny=8		nx=4	nz=4
 alfa0=1.8849	beta0=3.7698
 ymin=0		ymax=2		a=1.6
 ni=4790		pr=0.71	
@@ -6,7 +6,7 @@ meanflowx=1.3333  	meanpz=0
 u_conv=0.0	w_conv=0.0
 u0=0.0		un=0.0		w0=0.0		wn=0.0	t0=-1.0	tn=1.0
 
-deltat=0.01 	t_max=3		starting_time=0.0
+deltat=0.01 	t_max=0.05		starting_time=0.0
 dt_field=200000	dt_save=0.05 
 generate_inputs=yes
 

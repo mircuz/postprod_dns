@@ -272,7 +272,7 @@ SUBROUTINE write_topology
 END write_topology
 
 
-!// Fill the local array VV & V
+!// Declare local arrays V & auxiliaries
 ARRAY(ilo..ihi, klo..khi,jlo..jhi) OF VELOCITY V 
 POINTER TO ARRAY(0..localdim_x-1) OF REAL u_convol
 POINTER TO ARRAY(0..localdim_x-1) OF REAL v_convol

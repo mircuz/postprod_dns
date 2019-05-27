@@ -7,17 +7,24 @@
 
 USE postprod_support
 USE initialization
-USE postprod_oper
+USE postprod_io
 USE convol_trasp
+
 
 IF rank=0 THEN write_topology
 LOOP FOR time = starting_time TO t_max BY dt_save
-	!time = 0.005333333333333333
 	read_disk(nx,ny,nz)
 	vetaTOuvw
-	ytoz
-	convol_trasp(nx,ny,nz)
-	write_on_disk(nx,ny,nz)
+	LOOP FOR ix=ilo TO ihi
+		LOOP FOR iz=klo TO khi
+			LOOP FOR iy=jlo TO jhi
+				WRITE "V("ix","iz","iy")=" V(ix,iz,iy).u
+			REPEAT
+		REPEAT
+	REPEAT
+	!ytoz
+	!convol_trasp(nx,ny,nz)
+	!write_on_disk(nx,ny,nz)
 REPEAT
 IF rank=0 THEN xdmf_gen
 <* 	MPI_Finalize();	*>
