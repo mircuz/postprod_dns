@@ -3,9 +3,6 @@
 		double	imag;
   	} complex; *>
 
-
-
-SUBROUTINE read_mean_flow FOLLOWS
 SUBROUTINE read_disk(INTEGER nx_read,ny_read,nz_read)
 	<*	int nx= nx_read_+1;	int nz= 2*nz_read_+1;	int ny=ny_read_+3;		int size= size_; 	int rank = rank_; 	int file_reader;
 	/*HDF5 APIs definitions*/ 		
@@ -132,10 +129,6 @@ SUBROUTINE read_disk(INTEGER nx_read,ny_read,nz_read)
 	REPEAT!)
 END read_disk 
 
-
-
-
-
 SUBROUTINE read_mean_flow
 	LOOP FOR ix=ilo TO ihi
 		LOOP FOR iz=klo TO khi
@@ -182,11 +175,6 @@ SUBROUTINE read_mean_flow
 		REPEAT
 	REPEAT
 END read_mean_flow
-
-
-
-
-
 
 SUBROUTINE deriv(ARRAY(*) OF REAL f0,f1^)
 	f1(0)=SUM d140(i)*f0(1+i) FOR i=-2 TO 2

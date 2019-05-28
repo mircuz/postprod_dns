@@ -23,9 +23,9 @@ LOOP FOR time = starting_time+dt_save TO t_max BY dt_save
 			REPEAT
 		REPEAT
 	REPEAT
-	!ytoz
-	!convol_trasp(nx,ny,nz)
-	!write_on_disk(nx,ny,nz)
+	ytoz
+	convol_trasp(nx,ny,nz)
+	write_on_disk(nx,ny,nz)
 REPEAT
 IF rank=0 THEN xdmf_gen
 <* 	MPI_Finalize();	*>
