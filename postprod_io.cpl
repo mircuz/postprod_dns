@@ -158,11 +158,13 @@ SUBROUTINE read_mean_flow
 				dset_u_mean = H5Dopen(file_id, field_u_mean, H5P_DEFAULT);
 				filespace = H5Dget_space(dset_u_mean);
 				reading = H5Dread(dset_u_mean, H5T_IEEE_F64LE, H5S_ALL, filespace, H5P_DEFAULT, mean_u);
+				H5Sclose(filespace);
 				H5Dclose(dset_u_mean);
 
 				dset_w_mean = H5Dopen(file_id, field_w_mean, H5P_DEFAULT);
-				filespace = H5Dget_space(dset_u_mean);
+				filespace = H5Dget_space(dset_w_mean);
 				reading = H5Dread(dset_w_mean, H5T_IEEE_F64LE, H5S_ALL, filespace, H5P_DEFAULT, mean_w);
+				H5Sclose(filespace);
 				H5Dclose(dset_w_mean);
 		
 				H5Pclose(plist_id);
