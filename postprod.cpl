@@ -12,9 +12,10 @@ USE convol_trasp
 
 
 IF rank=0 THEN write_topology
-LOOP FOR time = starting_time TO t_max BY dt_save
+LOOP FOR time = starting_time+dt_save TO t_max BY dt_save
 	read_disk(nx,ny,nz)
 	vetaTOuvw
+	read_mean_flow;
 	LOOP FOR ix=ilo TO ihi
 		LOOP FOR iz=klo TO khi
 			LOOP FOR iy=jlo TO jhi

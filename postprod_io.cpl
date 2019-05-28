@@ -3,6 +3,9 @@
 		double	imag;
   	} complex; *>
 
+
+
+SUBROUTINE read_mean_flow FOLLOWS
 SUBROUTINE read_disk(INTEGER nx_read,ny_read,nz_read)
 	<*	int nx= nx_read_+1;	int nz= 2*nz_read_+1;	int ny=ny_read_+3;		int size= size_; 	int rank = rank_; 	int file_reader;
 	/*HDF5 APIs definitions*/ 		
@@ -121,8 +124,67 @@ SUBROUTINE read_disk(INTEGER nx_read,ny_read,nz_read)
 			REPEAT LOOP
 		REPEAT LOOP
 	REPEAT LOOP 
-<*MPI_Barrier(MPI_COMM_WORLD); *>
+<*	MPI_Barrier(MPI_COMM_WORLD); *>
+	!(LOOP FOR ix=ilo TO ihi AND iz=klo TO khi
+		IF ix=0 AND iz=0 THEN 
+			read_mean_flow;
+		END IF
+	REPEAT!)
 END read_disk 
+
+
+
+
+
+SUBROUTINE read_mean_flow
+	LOOP FOR ix=ilo TO ihi
+		LOOP FOR iz=klo TO khi
+			IF ix=0 AND iz=0 THEN 
+			<*	int nx= nx_+1;	int nz= 2*nz_+1;	int ny=ny_+3;	
+				char field_time[25]="/", field_u_mean[25]="", field_w_mean[25]="";
+				gcvt (time_, 10, field_time);
+				strcat(field_u_mean,field_time);		strcat(field_u_mean,"/u_mean");
+				strcat(field_w_mean,field_time);		strcat(field_w_mean,"/w_mean");
+	
+				hid_t file_id, dset_u_mean, dset_w_mean; 
+				hid_t plist_id, filespace;
+				herr_t reading;
+				double mean_u[ny], mean_w[ny];
+		
+
+				plist_id = H5Pcreate(H5P_FILE_ACCESS);
+				file_id = H5Fopen("Field.h5", H5F_ACC_RDWR, plist_id);
+
+				dset_u_mean = H5Dopen(file_id, field_u_mean, H5P_DEFAULT);
+				filespace = H5Dget_space(dset_u_mean);
+				reading = H5Dread(dset_u_mean, H5T_IEEE_F64LE, H5S_ALL, filespace, H5P_DEFAULT, mean_u);
+				H5Dclose(dset_u_mean);
+
+				dset_w_mean = H5Dopen(file_id, field_w_mean, H5P_DEFAULT);
+				filespace = H5Dget_space(dset_u_mean);
+				reading = H5Dread(dset_w_mean, H5T_IEEE_F64LE, H5S_ALL, filespace, H5P_DEFAULT, mean_w);
+				H5Dclose(dset_w_mean);
+		
+				H5Pclose(plist_id);
+				H5Fclose(file_id); 	
+				for (int i = 0; i < ny; i++) {
+					(*(double *)((i-1)*(ssize_t)sizeof(double)+mean_u_))=mean_u[i];	
+					(*(double *)((i-1)*(ssize_t)sizeof(double)+mean_w_))=mean_w[i];	
+				}	*>
+				LOOP FOR mode_y = jlo TO jhi	
+					V(0,0,-1..ny+1).u.REAL = mean_u(-1..ny+1);	
+					V(0,0,-1..ny+1).w.REAL = mean_w(-1..ny+1);
+					!WRITE "("0","0","mode_y")  " V(0,0,mode_y).u.REAL
+				REPEAT LOOP 
+			END IF
+		REPEAT
+	REPEAT
+END read_mean_flow
+
+
+
+
+
 
 SUBROUTINE deriv(ARRAY(*) OF REAL f0,f1^)
 	f1(0)=SUM d140(i)*f0(1+i) FOR i=-2 TO 2

@@ -284,6 +284,8 @@ POINTER TO ARRAY(0..localdim_x-1) OF REAL sendbuf
 POINTER TO ARRAY(0..localdim_x-1) OF REAL recvbuf
 ARRAY(0..localdim_x-1) OF REAL eta_write
 ARRAY(0..localdim_x-1) OF REAL v_write
+REAL mean_u(-1..ny+1)
+REAL mean_w(-1..ny+1)
 
 WRITE
 <*	u_convol_ = (FFT_SCALAR *) malloc(localdim_x_*sizeof(FFT_SCALAR));
