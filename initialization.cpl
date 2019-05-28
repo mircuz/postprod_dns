@@ -1,3 +1,29 @@
+USE fft
+USE rbmat
+!// Parallel - initialization---------------------------------------------------------------------------
+INTEGER rank, size
+WRITE
+<*/* Initialize MPI */
+MPI_Init(&argc,&argv);
+MPI_Comm remap_comm; // @suppress("Type cannot be resolved")
+MPI_Comm_dup( MPI_COMM_WORLD, &remap_comm ); // @suppress("Symbol is not resolved")
+int rank,size;
+MPI_Comm_size(MPI_COMM_WORLD,&size);
+MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+rank_ = rank;
+size_ = size;	*>
+
+INTEGER rank_zero_flag=0,rank_zero
+
+INTEGER localdim_x, localdim_z, dim_z, dim_y, ilo,ihi,jlo,jhi,klo,khi,  x_ilo,x_ihi,x_jlo,x_jhi,x_klo,x_khi,
+																		y_ilo,y_ihi,y_jlo,y_jhi,y_klo,y_khi,
+																		z_ilo,z_ihi,z_jlo,z_jhi,z_klo,z_khi,
+																		fz_ilo,fz_ihi,fz_jlo,fz_jhi,fz_klo,fz_khi,
+																		fx_ilo,fx_ihi,fx_jlo,fx_jhi,fx_klo,fx_khi,
+																		read_ilo, read_ihi, read_jlo,
+																		read_jhi, read_klo, read_khi;
+
+
 WRITE
 <*
   	/************************************************************************************************
@@ -6,7 +32,7 @@ WRITE
 	 * 													      										*
 	 ************************************************************************************************
 											     	  					  Author: Dr. Mirco Meazzo */
-  #include"fft_support.h"
+  
   getcwd(cwd_, sizeof(cwd_));
   strcat(output_cwd_,cwd_);
   strcat(output_cwd_,"/results");
@@ -273,7 +299,7 @@ END write_topology
 
 
 !// Declare local arrays V & auxiliaries
-ARRAY(ilo..ihi, klo..khi,jlo..jhi) OF VELOCITY V 
+!ARRAY(ilo..ihi, klo..khi,jlo..jhi) OF VELOCITY V_hdf 
 POINTER TO ARRAY(0..localdim_x-1) OF REAL u_convol
 POINTER TO ARRAY(0..localdim_x-1) OF REAL v_convol
 POINTER TO ARRAY(0..localdim_x-1) OF REAL w_convol
@@ -288,14 +314,14 @@ REAL mean_u(-1..ny+1)
 REAL mean_w(-1..ny+1)
 
 WRITE
-<*	u_convol_ = (FFT_SCALAR *) malloc(localdim_x_*sizeof(FFT_SCALAR));
-	v_convol_ = (FFT_SCALAR *) malloc(localdim_x_*sizeof(FFT_SCALAR));
-	w_convol_ = (FFT_SCALAR *) malloc(localdim_x_*sizeof(FFT_SCALAR));
-	U_t_ = (FFT_SCALAR *) malloc(localdim_x_*sizeof(FFT_SCALAR));
-	V_t_ = (FFT_SCALAR *) malloc(localdim_x_*sizeof(FFT_SCALAR));
-	W_t_ = (FFT_SCALAR *) malloc(localdim_x_*sizeof(FFT_SCALAR));
-	FFT_SCALAR *sendbuf = (FFT_SCALAR *) malloc(2*localdim_x_*sizeof(FFT_SCALAR));
-	FFT_SCALAR *recvbuf = (FFT_SCALAR *) malloc(2*localdim_x_*sizeof(FFT_SCALAR));	
+<*	u_convol_ = (double *) malloc(localdim_x_*sizeof(double));
+	v_convol_ = (double *) malloc(localdim_x_*sizeof(double));
+	w_convol_ = (double *) malloc(localdim_x_*sizeof(double));
+	U_t_ = (double *) malloc(localdim_x_*sizeof(double));
+	V_t_ = (double *) malloc(localdim_x_*sizeof(double));
+	W_t_ = (double *) malloc(localdim_x_*sizeof(double));
+	double *sendbuf = (double *) malloc(2*localdim_x_*sizeof(double));
+	double *recvbuf = (double *) malloc(2*localdim_x_*sizeof(double));	
 	if ((u_convol_||v_convol_||w_convol_||sendbuf||recvbuf) == NULL) {
 	  perror(".:Error while allocating memory for remapping variables:.\n");
 	  abort();

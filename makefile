@@ -1,5 +1,5 @@
-CCX = mpicxx
-CFLAGS = /usr/local/fri/complex.o /usr/local/fri/fft.o /usr/local/fri/rbmat.o 
+CCX = mpicc
+CFLAGS = /usr/local/fri/complex.o /usr/local/fri/fft.o /usr/local/fri/rbmat.o /usr/local/fri/parallel.o 
 
 
 all: translation compilation
@@ -9,21 +9,21 @@ translation:
 
 compilation: 
 	$(CC) -O3 -fPIC -c initialization.c
-	$(CC) -O3 -fPIC -c postprod_support.c
+	#$(CC) -O3 -fPIC -c postprod_support.c
 	$(CC) -O3 -fPIC -c postprod_io.c
 	$(CC) -O3 -fPIC -c postprod.c
-	$(CC) -O3 -fPIC -c fft_support.c
-	$(CC) -O3 -fPIC -c convol_trasp.c
+	$(CC) -O3 -fPIC -c dnsdata.c
+	$(CC) -O3 -fPIC -c rbmatmod.c
 	
-	$(CCX) $(CFLAGS) -o postprod_exe postprod.o initialization.o postprod_io.o postprod_support.o fft_support.o convol_trasp.o /home/mirco/Scrivania/fftmpi-1Oct18/src/libfft3dmpi.a -L/home/mirco/Scrivania/hdf5/lib /home/mirco/Scrivania/hdf5/lib/libhdf5_hl.a /home/mirco/Scrivania/hdf5/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,/home/mirco/Scrivania/hdf5/lib -I/usr/local/include -pthread -Wl,-rpath -Wl,/usr/local/lib -Wl,--enable-new-dtags -L/usr/local/lib -lmpi
+	$(CCX) $(CFLAGS) -o postprod_exe postprod.o initialization.o postprod_io.o rbmatmod.o dnsdata.o /home/mirco/Scrivania/fftmpi-1Oct18/src/libfft3dmpi.a -L/home/mirco/Scrivania/hdf5/lib /home/mirco/Scrivania/hdf5/lib/libhdf5_hl.a /home/mirco/Scrivania/hdf5/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,/home/mirco/Scrivania/hdf5/lib -I/usr/local/include -pthread -Wl,-rpath -Wl,/usr/local/lib -Wl,--enable-new-dtags -L/usr/local/lib -lmpi
 	make remove_useless
 	@echo "--> Executable ready <--"
 	@echo "--> run as mpiexec -n #procs postprod_exe <--"
 
 remove_useless:
-	mv fft_support.c fft_support.cost
+	#mv fft_support.c fft_support.cost
 	rm *.c
-	mv fft_support.cost fft_support.c
+	#mv fft_support.cost fft_support.c
 	rm *.o
 	rm *.d
 

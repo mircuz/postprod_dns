@@ -1,20 +1,22 @@
+
+gamma=0
+USE dnsdata
+
 #include <mpi.h>
 #include <math.h>
 #include <stdlib.h>
-#include "remap3d_wrap.h"
+
 #include "/home/mirco/Scrivania/hdf5/include/hdf5.h"
 #include "/home/mirco/Scrivania/hdf5/include/hdf5_hl.h"
 
-USE postprod_support
+
 USE initialization
 USE postprod_io
-USE convol_trasp
 
 
-IF rank=0 THEN write_topology
-LOOP FOR time = starting_time+dt_save TO t_max BY dt_save
+!LOOP FOR time = starting_time+dt_save TO t_max BY dt_save
+	time=0.05
 	read_disk(nx,ny,nz)
-	vetaTOuvw
 	read_mean_flow;
 	LOOP FOR ix=ilo TO ihi
 		LOOP FOR iz=klo TO khi
@@ -23,9 +25,6 @@ LOOP FOR time = starting_time+dt_save TO t_max BY dt_save
 			REPEAT
 		REPEAT
 	REPEAT
-	ytoz
-	convol_trasp(nx,ny,nz)
-	write_on_disk(nx,ny,nz)
-REPEAT
-IF rank=0 THEN xdmf_gen
+	
+!REPEAT
 <* 	MPI_Finalize();	*>
