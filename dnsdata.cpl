@@ -391,8 +391,7 @@ END IF!)
     LOOP FOR iy = miny TO maxy
      LOOP FOR ALL ix,iz WITH fieldbuf(ix,iz)
       v = V(ix,iz,iy).v
-      ialfa = I*alfa0*ix; ibeta = I*beta0*iz
-      eta = ibeta*V(ix,iz,iy).u - ialfa*V(ix,iz,iy).w
+      eta = V(ix,iz,iy).u
      REPEAT LOOP
     fieldimage(iy)=fieldbuf
 #ifdef scalar
