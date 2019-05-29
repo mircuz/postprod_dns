@@ -6,7 +6,7 @@ meanflowx=1.3333  	meanpz=0
 u_conv=0.0	w_conv=0.0
 u0=0.0		un=0.0		w0=0.0		wn=0.0	t0=-1.0	tn=1.0
 
-deltat=0.01 	t_max=0.05		starting_time=0.0
+deltat=0.01 	t_max=0.1		starting_time=0.0
 dt_field=200000	dt_save=0.05 
-generate_inputs=yes
-
+generate_inputs=no
+nproc_y=0		nproc_z=0

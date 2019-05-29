@@ -9,7 +9,6 @@ translation:
 
 compilation: 
 	$(CC) -O3 -fPIC -c initialization.c
-	#$(CC) -O3 -fPIC -c postprod_support.c
 	$(CC) -O3 -fPIC -c postprod_io.c
 	$(CC) -O3 -fPIC -c postprod.c
 	$(CC) -O3 -fPIC -c dnsdata.c
@@ -27,6 +26,10 @@ remove_useless:
 	rm *.o
 	rm *.d
 
+clear:
+	rm results/Field*.fld
+	rm *.dat
+
 clean: 
 	rm postprod_exe
-	rm results/Processed_Field.*
+	make clear

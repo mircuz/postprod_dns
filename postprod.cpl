@@ -7,24 +7,11 @@ USE dnsdata
 #include "/home/mirco/Scrivania/hdf5/include/hdf5.h"
 #include "/home/mirco/Scrivania/hdf5/include/hdf5_hl.h"
 
-
 USE initialization
 USE postprod_io
 
-
-!LOOP FOR time = starting_time+dt_save TO t_max BY dt_save
 	time=0.05
 	read_disk(nx,ny,nz)
 	read_mean_flow;
-	LOOP FOR ix=ilo TO ihi
-		LOOP FOR iz=klo TO khi
-			LOOP FOR iy=jlo TO jhi
-				WRITE "V("ix","iz","iy")=" V(ix,iz,iy).u
-			REPEAT
-		REPEAT
-	REPEAT
-	outstats
-	
-	
-!REPEAT
+	write_fld
 <* 	MPI_Finalize();	*>
