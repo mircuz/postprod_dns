@@ -27,7 +27,7 @@ remove_useless:
 	rm *.d
 
 clear:
-	rm results/Field*.fld
+	rm results/*.fld
 	rm *.dat
 
 clean: 

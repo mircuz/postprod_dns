@@ -23,7 +23,7 @@ SUBROUTINE read_disk(INTEGER nx_read,ny_read,nz_read)
 	strcat(field_v,field_time);		strcat(field_v,"/v");
 	strcat(field_eta,field_time);	strcat(field_eta,"/eta");
 	char whereami[50];	getcwd(whereami,sizeof(whereami));
-	if (rank==0) printf("Reading field from %s/Field.h5/%s\n", whereami,field_time);
+	if (rank==0) printf("Extracting field %s/Field.h5/%s\n", whereami,field_time);
 	//-------------------------------------------- DATATYPE DEF -----------------------------------------------	
 	complex *complex_disk_data = (complex*) malloc(ny*(y_ihi_-y_ilo_+1)*(y_khi_-y_klo_+1)*sizeof(complex));	
 	if ( complex_disk_data == NULL) {

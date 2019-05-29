@@ -10,6 +10,10 @@ USE dnsdata
 USE initialization
 USE postprod_io
 
+controller=OPEN("control.io");	INTEGER nftot;	READ FROM controller nftot;	CLOSE(controller)
+times=OPEN("stats_times.in");	REAL ensamble_times[nftot]; READ FROM times ensamble_times;	CLOSE(times)
+WRITE "I've read " ensamble_times
+
 	time=0.05
 	read_disk(nx,ny,nz)
 	read_mean_flow;
