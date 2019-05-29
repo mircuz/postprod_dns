@@ -294,7 +294,7 @@ VETA fieldbuf(0..nx,-nz..nz)
 VELOCITY velbuf(0..nx,-nz..nz)
 SUBROUTINE outstats
 INC outcont; 
-IF outcont>0 THEN
+!(IF outcont>0 THEN
 	outcont=0; getcfl(); cflm=0; energy=0; slice_energy=0; diss=0; slice_diss=0
 
 	DO WITH V(ix,iz,iy): 
@@ -342,7 +342,7 @@ IF outcont>0 THEN
 		WRITE TO scalar_file time:1.9,(SUM d140(i)*phi(0,0,1+i).REAL FOR ALL i), (SUM d14n(i)*phi(0,0,ny-1+i).REAL FOR ALL i); FLUSH(scalar_file)
 #endif
 	END IF
-END IF
+END IF!)
     	
 !(IF time>0 AND FLOOR((time+0.5*deltat)/dt_save) > FLOOR((time-0.5*deltat)/dt_save) THEN
   DO WITH V(0,0,iy): u=~-u_conv; w=~-w_conv FOR ALL iy
@@ -370,9 +370,9 @@ END IF
   CLOSE diskimage
   IF NOT last THEN WRITE TO next
   DO WITH V(0,0,iy): u=~+u_conv; w=~+w_conv FOR ALL iy
-END IF
+END IF!)
     
-IF time>0 AND FLOOR((time+0.5*deltat)/dt_field) > FLOOR((time-0.5*deltat)/dt_field) THEN
+!//IF time>0 AND FLOOR((time+0.5*deltat)/dt_field) > FLOOR((time-0.5*deltat)/dt_field) THEN
   cont=~+1; STRING field_name
   field_name = WRITE("Field"cont".fld")
   DO WITH V(0,0,iy): u=~-u_conv; w=~-w_conv FOR ALL iy
@@ -403,7 +403,7 @@ IF time>0 AND FLOOR((time+0.5*deltat)/dt_field) > FLOOR((time-0.5*deltat)/dt_fie
   CLOSE diskfield
   IF NOT last THEN WRITE TO next
   DO WITH V(0,0,iy): u=~+u_conv; w=~+w_conv FOR ALL iy
-END IF !)
+!//END IF 
 END outstats
     
 SUBROUTINE read_restart_file

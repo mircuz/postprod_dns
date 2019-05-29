@@ -1,11 +1,9 @@
-
 gamma=0
 USE dnsdata
 
 #include <mpi.h>
 #include <math.h>
 #include <stdlib.h>
-
 #include "/home/mirco/Scrivania/hdf5/include/hdf5.h"
 #include "/home/mirco/Scrivania/hdf5/include/hdf5_hl.h"
 
@@ -25,6 +23,8 @@ USE postprod_io
 			REPEAT
 		REPEAT
 	REPEAT
+	outstats
+	
 	
 !REPEAT
 <* 	MPI_Finalize();	*>

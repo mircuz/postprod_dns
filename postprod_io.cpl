@@ -122,11 +122,6 @@ SUBROUTINE read_disk(INTEGER nx_read,ny_read,nz_read)
 		REPEAT LOOP
 	REPEAT LOOP 
 <*	MPI_Barrier(MPI_COMM_WORLD); *>
-	!(LOOP FOR ix=ilo TO ihi AND iz=klo TO khi
-		IF ix=0 AND iz=0 THEN 
-			read_mean_flow;
-		END IF
-	REPEAT!)
 END read_disk 
 
 SUBROUTINE read_mean_flow
