@@ -11,11 +11,11 @@ USE initialization
 USE postprod_io
 
 controller=OPEN("control.io");	INTEGER nftot;	READ FROM controller nftot;	CLOSE(controller)
-times=OPEN("stats_times.in");	REAL ensamble_times[nftot]; READ FROM times ensamble_times;	CLOSE(times)
-WRITE "I've read " ensamble_times
-
-	time=0.05
+times=OPEN("stats_times.in");	REAL ensamble_times[nftot-1]; READ FROM times ensamble_times;	CLOSE(times)
+LOOP FOR i=0 TO nftot-1
+	time=ensamble_times[i]
 	read_disk(nx,ny,nz)
 	read_mean_flow;
 	write_fld
+REPEAT LOOP
 <* 	MPI_Finalize();	*>

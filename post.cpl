@@ -5,7 +5,7 @@ USE dnsdirect
 
 INTEGER nfmin,nfmax,maxquote,flag_eps
 ASK nfmin,nfmax,maxquote; nftot=nfmax-nfmin+1
-controller=OPEN("results/control.io");	WRITE TO controller nftot;
+controller=OPEN("results/control.io");	WRITE TO controller nftot;	CLOSE(controller)
 ARRAY(1..maxquote) OF INTEGER quota
 DO ASK quota(i) FOR ALL i
 ASK flag_eps
@@ -13,7 +13,6 @@ IF first THEN
 	WRITE 	
 	  <*int status = system("./postprod_exe"); *>
 END IF
-<*int remove = system("rm results/control.io"); *>
 
 REALVEL=STRUCTURE(REAL u,v,w)
 SPECTRUM=STRUCTURE(REAL uu,uv,uw,vv,vw,ww)
@@ -350,4 +349,5 @@ LOOP quote FOR i=1 TO maxquote
   CLOSE out
 
 REPEAT quote  
+<*int remove = system("rm results/control.io");	int runtime = system("rm Runtimedata"); *>
 STOP

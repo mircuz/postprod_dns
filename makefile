@@ -6,7 +6,7 @@ all: translation compilation
 
 translation:
 	/usr/local/fri/fri /usr/local/fri/cpl postprod.cpl
-
+	makecpl post
 compilation: 
 	$(CC) -O3 -fPIC -c initialization.c
 	$(CC) -O3 -fPIC -c postprod_io.c
@@ -32,4 +32,5 @@ clear:
 
 clean: 
 	rm postprod_exe
+	rm post
 	make clear
