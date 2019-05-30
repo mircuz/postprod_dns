@@ -18,4 +18,8 @@ LOOP FOR i=0 TO nftot-1
 	read_mean_flow;
 	write_fld
 REPEAT LOOP
+
+USE dnsdirect
+vetaTOuvw
+write_on_disk(nx,ny,nz)
 <* 	MPI_Finalize();	*>
