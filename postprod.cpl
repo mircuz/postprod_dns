@@ -18,20 +18,4 @@ LOOP FOR i=0 TO nftot-1
 	read_mean_flow;
 	write_fld
 REPEAT LOOP
-
-USE dnsdirect
-USE convol_trasp
-
-vetaTOuvw
-
-LOOP FOR k=LO2(V) TO HI2(V)
-	LOOP FOR i=LO(V) TO HI(V)
-		LOOP FOR j=LO3(V) TO HI3(V)
-			WRITE "V("i","k","j")" V(i,k,j).u
-		REPEAT
-	REPEAT
-REPEAT
-
-ytoz;	
-write_on_disk
 <* 	MPI_Finalize();	*>

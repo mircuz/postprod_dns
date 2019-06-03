@@ -1,4 +1,4 @@
-ny=8		nx=4	nz=4
+ny=10		nx=4	nz=4
 alfa0=1.8849	beta0=3.7698
 ymin=0		ymax=2		a=1.6
 ni=0.000015		pr=0.71	

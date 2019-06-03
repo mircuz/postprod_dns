@@ -1,0 +1,56 @@
+WRITE
+
+#include "remap3d_wrap.h"
+SUBROUTINE move_data
+	INTEGER counter = 0
+	LOOP FOR i=ilo TO ihi
+		LOOP FOR k=klo TO khi
+			LOOP FOR j=-1 TO ny+1
+				U_t[counter]= V(i,k,j).u.REAL;		V_t[counter]= V(i,k,j).v.REAL;		W_t[counter]= V(i,k,j).w.REAL;		INC counter;
+				U_t[counter]= V(i,k,j).u.IMAG;		V_t[counter]= V(i,k,j).v.IMAG;		W_t[counter]= V(i,k,j).w.IMAG;		INC counter;
+			REPEAT
+		REPEAT
+	REPEAT 
+END move_data 
+
+SUBROUTINE ytoz
+	move_data 
+<*	int nqty, permute, memoryflag, sendsize, recvsize;
+	void *remap_ytoz_pencil;
+	nqty=2, memoryflag=1;
+	// ------------------------------------------- Setup YZ-Transpose --------------------------------------------
+  	remap3d_create( MPI_COMM_WORLD , &remap_ytoz_pencil);
+  	permute = 1;  		// From y-contiguous to z-contiguous arrays
+  	remap3d_setup( remap_ytoz_pencil,
+	  		  	  y_jlo_, y_jhi_, y_klo_, y_khi_, y_ilo_, y_ihi_,
+				  fz_jlo_, fz_jhi_, fz_klo_, fz_khi_, fz_ilo_, fz_ihi_,
+	  			  nqty, permute, memoryflag, &sendsize, &recvsize);
+  // -----------------------------------------------------------------------------------------------------------
+	MPI_Barrier(MPI_COMM_WORLD);
+	remap3d_remap(remap_ytoz_pencil,U_t_,U_t_,sendbuf_,recvbuf_);
+	remap3d_remap(remap_ytoz_pencil,V_t_,V_t_,sendbuf_,recvbuf_);
+	remap3d_remap(remap_ytoz_pencil,W_t_,W_t_,sendbuf_,recvbuf_);
+  	MPI_Barrier(MPI_COMM_WORLD); 
+	remap3d_destroy(remap_ytoz_pencil);	*>
+END ytoz
+
+SUBROUTINE random_field
+	V=0
+	IF rank=0 THEN 
+		LOOP FOR ALL iy
+			DO WITH V(0,iz,iy): u=0.0001*EXP(RAND()*2*PI*I); v=0.0001*EXP(RAND()*2*PI*I); w=0.0001*EXP(RAND()*2*PI*I) FOR ALL iz
+			LOOP FOR ix=ilo TO ihi
+				IF ix=0 THEN LOOP FOR iz=klo TO khi
+					IF iz>1 THEN V(ix,-iz,iy).u=CONJG(V(0,iz,iy).u);V(0,-iz,iy).v=CONJG(V(0,iz,iy).v);V(0,-iz,iy).w=CONJG(V(0,iz,iy).w)
+				REPEAT
+			REPEAT
+		REPEAT
+	END IF
+	LOOP FOR ix=ilo TO ihi AND iz=klo TO khi
+		IF ix=0 AND iz=0 THEN DO WITH V(ix,iz,iy): u.REAL=[3/4*(1-[1-y(iy)]^2)]/1000; u.IMAG=0; v=0; w.IMAG=0 FOR iy=-1 TO ny+1
+	REPEAT 
+	IF rank=0 THEN WRITE "Input data Generated"
+	ytoz
+	write_on_disk
+END random_field
+

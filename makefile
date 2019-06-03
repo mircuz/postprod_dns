@@ -32,6 +32,7 @@ clear:
 	rm results/*.fld
 	rm *.dat
 	rm results/0.h5
+	rm results/*.dat
 
 clean: 
 	rm postprod_exe
