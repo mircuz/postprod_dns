@@ -216,7 +216,8 @@ LOOP FOR i=1 TO maxquote
 REPEAT LOOP 
 
 !ARRAY(0..5) OF CHAR str; ASK str
-uc=MAX(mean.u); ut=SQRT[ni*(SUM d140(i)*mean.u(1+i) FOR ALL i)]
+uc=MAX(mean.u); 
+ut=SQRT[ni*(SUM d140(i)*mean.u(1+i) FOR ALL i)]
 uc2=uc*uc;ut2=ut*ut
 FILE out=CREATE("info.dat")
 WRITE BY NAME TO out uc,ut,ut/ni
