@@ -12,11 +12,9 @@ compilation:
 	$(CC) -O3 -fPIC -c postprod_io.c
 	$(CC) -O3 -fPIC -c postprod.c
 	$(CC) -O3 -fPIC -c dnsdata.c
-	$(CC) -O3 -fPIC -c dnsdirect.c
 	$(CC) -O3 -fPIC -c rbmatmod.c
-	$(CC) -O3 -fPIC -c convol_trasp.c
 	
-	$(CCX) $(CFLAGS) -o postprod_exe postprod.o initialization.o postprod_io.o rbmatmod.o dnsdata.o dnsdirect.o convol_trasp.o /home/mirco/Scrivania/fftmpi-1Oct18/src/libfft3dmpi.a -L/home/mirco/Scrivania/hdf5/lib /home/mirco/Scrivania/hdf5/lib/libhdf5_hl.a /home/mirco/Scrivania/hdf5/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,/home/mirco/Scrivania/hdf5/lib -I/usr/local/include -pthread -Wl,-rpath -Wl,/usr/local/lib -Wl,--enable-new-dtags -L/usr/local/lib -lmpi
+	$(CCX) $(CFLAGS) -o postprod_exe postprod.o initialization.o postprod_io.o rbmatmod.o dnsdata.o /home/mirco/Scrivania/fftmpi-1Oct18/src/libfft3dmpi.a -L/home/mirco/Scrivania/hdf5/lib /home/mirco/Scrivania/hdf5/lib/libhdf5_hl.a /home/mirco/Scrivania/hdf5/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,/home/mirco/Scrivania/hdf5/lib -I/usr/local/include -pthread -Wl,-rpath -Wl,/usr/local/lib -Wl,--enable-new-dtags -L/usr/local/lib -lmpi
 	make remove_useless
 	@echo "--> Executable ready <--"
 	@echo "--> run as mpiexec -n #procs postprod_exe <--"
