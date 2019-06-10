@@ -10,8 +10,9 @@ USE dnsdata
 USE initialization
 USE postprod_io
 
-controller=OPEN("control.io");	INTEGER nftot;	READ FROM controller nftot;	CLOSE(controller)
-times=OPEN("stats_times.in");	REAL ensamble_times[nftot-1]; READ FROM times ensamble_times;	CLOSE(times)
+controller=OPEN("control.io");	INTEGER nftot, nfmin, nfmax;	READ FROM controller nfmin, nfmax;	CLOSE(controller)
+nftot=nfmax-nfmin;	cont= nfmin-1
+times=OPEN("stats_times.in");	REAL ensamble_times[nftot-1]; 	READ FROM times ensamble_times;	CLOSE(times)
 LOOP FOR i=0 TO nftot-1
 	time=ensamble_times[i]
 	read_disk(nx,ny,nz)

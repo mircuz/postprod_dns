@@ -1,12 +1,12 @@
-ny=129		nx=192	nz=80
-alfa0=0.5	beta0=1
-ymin=0		ymax=2		a=1.6
-ni=0.000015		pr=0.71	
-meanflowx=1.3333	meanpz=0
-u_conv=0.0	w_conv=0.0
-u0=0.0		un=0.0		w0=0.0		wn=0.0	t0=-1.0	tn=1.0
+ny=128  nx=96   nz=80
+alfa0=0.5       beta0=1
+ymin=0          ymax=2          a=1.6
+ni=180          pr=0.71
+meanpx=1        meanpz=0
+u_conv=0.0      w_conv=0.0
+u0=0.0          un=0.0          w0=0.0          wn=0.0  t0=-1.0 tn=1.0
 
-deltat=0.01 	t_max=2		starting_time=0
-dt_field=0.5	dt_save=0.5 
-generate_inputs=yes
-nproc_y=0		nproc_z=0
+deltat=0.001	t_max=10                starting_time=0
+dt_field=5      dt_save=1
+generate_inputs=no
+nproc_y=16              nproc_z=16
