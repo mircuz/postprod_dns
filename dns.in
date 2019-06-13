@@ -1,12 +1,13 @@
-ny=128  nx=96   nz=80
-alfa0=0.5       beta0=1
-ymin=0          ymax=2          a=1.6
-ni=180          pr=0.71
-meanpx=1        meanpz=0
-u_conv=0.0      w_conv=0.0
-u0=0.0          un=0.0          w0=0.0          wn=0.0  t0=-1.0 tn=1.0
+ny=10		nx=250	nz=250
+alfa0=0.5	beta0=1
+ymin=0		ymax=2		a=1.6
+ni=180		pr=0.71	
+meanpx=1	meanpz=0
+u_conv=0.0	w_conv=0.0
+u0=0.0		un=0.0		w0=0.0		wn=0.0	t0=-1.0	tn=1.0
 
-deltat=0.001	t_max=10                starting_time=0
-dt_field=5      dt_save=1
-generate_inputs=no
-nproc_y=16              nproc_z=16
+deltat=0.0001 	t_max=0.001		starting_time=0
+dt_field=0.1	dt_save=0.0002
+generate_inputs=yes		inj_nx=48	inj_nz=48
+nproc_y=0		nproc_z=0
+live_postpro=no	stats_counter=1
